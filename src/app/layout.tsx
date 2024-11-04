@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import SideBar from "./sideBar/sideBar";
+import SideBar from "./components/sideBar";
 import { ClerkProvider, SignedIn } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,6 +37,22 @@ export default function RootLayout({
             <SideBar/>
           </SignedIn>
           {children}
+          <div className="absolute top-1 right-1 w-[10%] h-[10%] flex justify-center items-center">
+          <UserButton
+                appearance={{
+                            elements: {
+                                userButtonAvatarBox: {
+                                    width: '100%', 
+                                    height: '100%',
+                                    minWidth: '1.5rem',
+                                    minHeight: '1.5rem',
+                                    maxWidth: '4rem',
+                                    maxHeight: '4rem' 
+                            },
+                        },
+                    }}
+                />
+          </div>
         </div>
       </body>
     </html>
