@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import SideBar from "./components/sideBar";
 import { ClerkProvider, SignedIn } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 
@@ -33,9 +32,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="w-screen h-screen flex justify-start items-center">
-          <SignedIn>
-            <SideBar/>
-          </SignedIn>
           {children}
           <div className="absolute top-1 right-1 w-[10%] h-[10%] flex justify-center items-center">
           <UserButton

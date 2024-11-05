@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
 import { useUser } from '@clerk/nextjs'; 
+import Link from "next/link";
 
 type User = {
     id: string;
@@ -77,7 +78,7 @@ const SideBar = () => {
     return (
         <div
             ref={sidebarRef}
-            className="absolute w-1/4 max-w-80 min-w-20 h-full bg-[#efefef] border-r-6 flex flex-col justify-start items-center shadow-lg"
+            className="w-1/4 max-w-80 min-w-20 h-full bg-[#efefef] border-r-6 flex flex-col justify-start items-center shadow-lg"
         >
             <div className="w-full h-[10%] bg-transparent flex justify-evenly items-center">
                 {focused && (
@@ -90,26 +91,29 @@ const SideBar = () => {
                 <div className="w-[80%] h-1/2 bg-gray-200 flex justify-start items-center rounded-3xl text-black transition-all duration-300 ease-in-out">
                     <input
                         type="text"
-                        className="bg-transparent w-[80%] p-4 outline-none"
+                        className="bg-transparent w-[80%] p-4 outline-none transition-all "
                         onFocus={handleFocus} 
                         onBlur={handleBlur} 
                         onChange={(e) => setSearchTerm(e.target.value)}
                         value={searchTerm}
                     />
-                    <FontAwesomeIcon icon={faSearch} className="text-black w-[20%] h-[50%]" />
+                    <FontAwesomeIcon icon={faSearch} className="text-black w-[20%] h-[50%] cursor-pointer" />
                 </div>
             </div>
 
             {focused && (
                 <div className="w-full h-[90%] bg-transparent flex flex-col items-center justify-start">
                     {searchResults.length > 0 ? (
-                        <ul className="w-full bg-transparent border-2 p-2">
+                        <>
+                        <ul className="w-full bg-transparent border-r-2 border-t-2 border-l-2 ">
                             {searchResults.map((user) => (
-                                <li key={user.id} className="p-2 hover:bg-gray-100 cursor-pointer text-black">
+                                <li key={user.id} className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2">
                                     {user.name} {user.surname}
                                 </li>
                             ))}
                         </ul>
+                        <Link href="/users" className="bg-transparent hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl text-black flex justify-center items-center">Show more</Link>
+                        </>
                     ) : (
                         <p className="text-gray-500 mt-2">No users found</p>
                     )}
