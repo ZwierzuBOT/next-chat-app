@@ -47,18 +47,14 @@ const SideBar = () => {
         return () => clearTimeout(debounceFetch);
     }, [searchTerm]); 
 
-    const handleClickOutside = (event: MouseEvent) => {
-        if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
-            setFocus(false); 
-        }
+    const handleFocus = () => setFocus(true);
+    const handleBlur = () => {
+        setTimeout(() => {
+            if (sidebarRef.current) {
+                setFocus(false);
+            }
+        }, 100);
     };
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     return (
         <div
@@ -77,8 +73,8 @@ const SideBar = () => {
                     <input
                         type="text"
                         className="bg-transparent w-[80%] p-4 outline-none"
-                        onFocus={() => setFocus(true)} // Set focus to true when input is focused
-                        onBlur={() => setFocus(false)} // Set focus to false when input loses focus
+                        onFocus={handleFocus} 
+                        onBlur={handleBlur} 
                         onChange={(e) => setSearchTerm(e.target.value)}
                         value={searchTerm}
                     />
@@ -86,7 +82,6 @@ const SideBar = () => {
                 </div>
             </div>
 
-            {/* Render user list only when focused */}
             {focused && (
                 <div className="w-full h-[90%] bg-transparent flex flex-col items-center justify-start">
                     {searchResults.length > 0 ? (
