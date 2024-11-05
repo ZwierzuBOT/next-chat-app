@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useRef, useEffect } from "react";
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
+import { useUser } from '@clerk/nextjs'; 
 
 type User = {
     id: string;
@@ -13,6 +14,8 @@ type User = {
 };
 
 const SideBar = () => {
+    const { user } = useUser(); 
+    const currentUserId = user ? user.id : null; 
     const [focused, setFocus] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -28,9 +31,15 @@ const SideBar = () => {
                     id: doc.id,
                     ...(doc.data() as Omit<User, 'id'>) 
                 }))
-                .filter(user =>
-                    user.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+                .filter(user => 
+                    user.id !== currentUserId && 
+                    matchesSearchTerm(user, searchTerm) 
                 )
+                .sort((a, b) => {
+                    const fullNameA = `${a.name} ${a.surname}`.toLowerCase();
+                    const fullNameB = `${b.name} ${b.surname}`.toLowerCase();
+                    return fullNameA.localeCompare(fullNameB);
+                })
                 .slice(0, 6); 
 
             setSearchResults(results);
@@ -42,10 +51,19 @@ const SideBar = () => {
             } else {
                 setSearchResults([]); 
             }
-        }, 300);
+        }, 100);
 
         return () => clearTimeout(debounceFetch);
-    }, [searchTerm]); 
+    }, [searchTerm, currentUserId]); 
+
+    const matchesSearchTerm = (user: User, term: string) => {
+        const searchParts = term.trim().toLowerCase().split(' '); 
+        return searchParts.every(part => {
+            const nameMatches = user.name.toLowerCase().includes(part);
+            const surnameMatches = user.surname.toLowerCase().includes(part);
+            return nameMatches || surnameMatches; 
+        });
+    };
 
     const handleFocus = () => setFocus(true);
     const handleBlur = () => {
