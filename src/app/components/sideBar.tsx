@@ -6,7 +6,6 @@ import { useState, useRef, useEffect } from "react";
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
 import { useUser } from '@clerk/nextjs'; 
-import Link from "next/link";
 
 type User = {
     id: string;
@@ -20,7 +19,9 @@ const SideBar = () => {
     const [focused, setFocus] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
+    const [resultsLimit, setResultsLimit] = useState(5); 
     const sidebarRef = useRef<HTMLDivElement>(null);
+    const showMoreButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -41,7 +42,7 @@ const SideBar = () => {
                     const fullNameB = `${b.name} ${b.surname}`.toLowerCase();
                     return fullNameA.localeCompare(fullNameB);
                 })
-                .slice(0, 6); 
+                .slice(0, resultsLimit); 
 
             setSearchResults(results);
         };
@@ -55,24 +56,38 @@ const SideBar = () => {
         }, 100);
 
         return () => clearTimeout(debounceFetch);
-    }, [searchTerm, currentUserId]); 
+    }, [searchTerm, resultsLimit, currentUserId]);
 
     const matchesSearchTerm = (user: User, term: string) => {
         const searchParts = term.trim().toLowerCase().split(' '); 
-        return searchParts.every(part => {
-            const nameMatches = user.name.toLowerCase().includes(part);
-            const surnameMatches = user.surname.toLowerCase().includes(part);
-            return nameMatches || surnameMatches; 
-        });
+    
+
+        const nameMatches = searchParts[0] && user.name.toLowerCase().startsWith(searchParts[0]);
+    
+
+        const surnameMatches = searchParts[1]
+            ? user.surname.toLowerCase().startsWith(searchParts[1])
+            : true; 
+    
+        return nameMatches && surnameMatches;
     };
+    
 
     const handleFocus = () => setFocus(true);
-    const handleBlur = () => {
-        setTimeout(() => {
-            if (sidebarRef.current) {
-                setFocus(false);
-            }
-        }, 100);
+    
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        
+        if (e.relatedTarget !== showMoreButtonRef.current) {
+            setTimeout(() => {
+                if (sidebarRef.current) {
+                    setFocus(false);
+                }
+            }, 100);
+        }
+    };
+
+    const handleShowMore = () => {
+        setResultsLimit((prevLimit) => prevLimit + 5); 
     };
 
     return (
@@ -112,7 +127,16 @@ const SideBar = () => {
                                 </li>
                             ))}
                         </ul>
-                        <Link href="/users" className="bg-transparent hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl text-black flex justify-center items-center">Show more</Link>
+                        {searchResults.length >= resultsLimit && (
+                            <button 
+                                ref={showMoreButtonRef}
+                                className="bg-gray-200 hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl
+                                text-black flex justify-center items-center"
+                                onClick={handleShowMore}
+                            >
+                                Show more
+                            </button>
+                        )}
                         </>
                     ) : (
                         <p className="text-gray-500 mt-2">No users found</p>
