@@ -26,20 +26,17 @@ const UserSync: React.FC = () => {
 
             if (!userSnap.exists()) {
               const email = user.emailAddresses?.[0]?.emailAddress || '';
-              const username = user.username || '';
-
+              const name = user.firstName || '';
+              const surname = user.lastName || '';
               await setDoc(userRef, {
                 id: user.id,
-                email,
-                name: username,
+                email: email,
+                name: name,
+                surname: surname,
               });
-              console.log('User data synced:', { id: user.id, email, name: username });
-            } else {
-              console.log('User data already exists:', userSnap.data());
-            }
-          } else {
-            console.error('Unable to get Clerk token.');
-          }
+            } 
+            
+          } 
         } catch (error) {
           console.error('Error syncing user data:', error);
         }
