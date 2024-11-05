@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import { faArrowLeft, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useRef, useEffect } from "react";
@@ -20,6 +19,7 @@ const SideBar = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
     const [resultsLimit, setResultsLimit] = useState(5); 
+    const [totalMatchingUsers, setTotalMatchingUsers] = useState(0); // Track total matching users
     const sidebarRef = useRef<HTMLDivElement>(null);
     const showMoreButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -41,10 +41,10 @@ const SideBar = () => {
                     const fullNameA = `${a.name} ${a.surname}`.toLowerCase();
                     const fullNameB = `${b.name} ${b.surname}`.toLowerCase();
                     return fullNameA.localeCompare(fullNameB);
-                })
-                .slice(0, resultsLimit); 
+                });
 
-            setSearchResults(results);
+            setTotalMatchingUsers(results.length); // Set total matching users
+            setSearchResults(results.slice(0, resultsLimit)); // Limit the displayed results
         };
 
         const debounceFetch = setTimeout(() => {
@@ -52,6 +52,7 @@ const SideBar = () => {
                 fetchUsers(); 
             } else {
                 setSearchResults([]); 
+                setTotalMatchingUsers(0); // Reset when search term is cleared
             }
         }, 100);
 
@@ -60,23 +61,18 @@ const SideBar = () => {
 
     const matchesSearchTerm = (user: User, term: string) => {
         const searchParts = term.trim().toLowerCase().split(' '); 
-    
 
         const nameMatches = searchParts[0] && user.name.toLowerCase().startsWith(searchParts[0]);
-    
-
-        const surnameMatches = searchParts[1]
-            ? user.surname.toLowerCase().startsWith(searchParts[1])
-            : true; 
+        const surnameMatches = searchParts[1] ? user.surname.toLowerCase().startsWith(searchParts[1]) : true; 
     
         return nameMatches && surnameMatches;
     };
     
-
-    const handleFocus = () => setFocus(true);
+    const handleFocus = () => {
+        setFocus(true);
+    };
     
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        
         if (e.relatedTarget !== showMoreButtonRef.current) {
             setTimeout(() => {
                 if (sidebarRef.current) {
@@ -89,6 +85,13 @@ const SideBar = () => {
     const handleShowMore = () => {
         setResultsLimit((prevLimit) => prevLimit + 5); 
     };
+
+
+    useEffect(()=>{
+        if (!focused){
+            setResultsLimit(5);
+        }
+    },[focused])
 
     return (
         <div
@@ -120,23 +123,23 @@ const SideBar = () => {
                 <div className="w-full h-[90%] bg-transparent flex flex-col items-center justify-start">
                     {searchResults.length > 0 ? (
                         <>
-                        <ul className="w-full bg-transparent border-r-2 border-t-2 border-l-2 ">
-                            {searchResults.map((user) => (
-                                <li key={user.id} className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2">
-                                    {user.name} {user.surname}
-                                </li>
-                            ))}
-                        </ul>
-                        {searchResults.length >= resultsLimit && (
-                            <button 
-                                ref={showMoreButtonRef}
-                                className="bg-gray-200 hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl
-                                text-black flex justify-center items-center"
-                                onClick={handleShowMore}
-                            >
-                                Show more
-                            </button>
-                        )}
+                            <ul className="w-full bg-transparent border-r-2 border-t-2 border-l-2 ">
+                                {searchResults.map((user) => (
+                                    <li key={user.id} className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2">
+                                        {user.name} {user.surname}
+                                    </li>
+                                ))}
+                            </ul>
+                            {totalMatchingUsers > resultsLimit && ( 
+                                <button 
+                                    ref={showMoreButtonRef}
+                                    className="bg-gray-200 hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl
+                                    text-black flex justify-center items-center"
+                                    onClick={handleShowMore}
+                                >
+                                    Show more
+                                </button>
+                            )}
                         </>
                     ) : (
                         <p className="text-gray-500 mt-2">No users found</p>
