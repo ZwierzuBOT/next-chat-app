@@ -133,7 +133,13 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
                                     <li 
                                         key={user.id} 
                                         className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2 break-words"
-                                        onClick={() => setSelectedUser(user)} 
+                                        onClick={() => {
+                                            setSelectedUser(user);
+                                            setFocus(false);
+                                            setSearchTerm("")
+                                          }}
+                                          
+                                        
                                     >
                                         {user.name} {user.surname}
                                     </li>

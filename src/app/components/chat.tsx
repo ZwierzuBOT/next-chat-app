@@ -41,7 +41,6 @@ const Chat = ({ selectedUser, setSelectedUser }: ChatProps) => {
       fetchMessages();
     }
   }, [currentUserId, selectedUser]);
-  
 
   const handleSendMessage = async () => {
     if (currentUserId && selectedUser && newMessage.trim()) {
@@ -57,16 +56,23 @@ const Chat = ({ selectedUser, setSelectedUser }: ChatProps) => {
     }
   };
 
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && newMessage.trim()) {
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="w-full h-full p-4 flex flex-col justify-between text-black">
       {selectedUser && (
-        <div className="chat-header text-xl font-semibold mb-4 text-black w-full h-[10%]" >
+        <div className="chat-header text-xl font-semibold mb-4 text-black w-full h-[10%] " >
           Chatting with {selectedUser.name} {selectedUser.surname}
         </div>
       )}
       <div className="chat-messages flex overflow-y-scroll flex-start flex-col h-[90%] w-full overflow-x-hidden">
         {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.senderId === currentUserId ? "sent" : "received"} break-words`}>
+          <div key={index} className={`message ${msg.senderId === currentUserId ? "sent bg-blue-500 text-white" : "received bg-gray-200 self-end mr-1 text-black"} break-words text-2xl p-2  rounded-xl mt-1 w-fit`}>
             {msg.message}
           </div>
         ))}
@@ -78,6 +84,7 @@ const Chat = ({ selectedUser, setSelectedUser }: ChatProps) => {
           placeholder="Type a message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={handleKeyDown} 
         />
         <button className="p-2 bg-blue-500 text-white rounded-r" onClick={handleSendMessage}>
           Send
