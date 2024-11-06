@@ -12,7 +12,13 @@ type User = {
     surname: string;
 };
 
-const SideBar = () => {
+// Define types for the props
+type SideBarProps = {
+    selectedUser: User | null;  // selectedUser is either a User or null
+    setSelectedUser: (user: User | null) => void;  // setSelectedUser function that takes User or null
+};
+
+const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
     const { user } = useUser(); 
     const currentUserId = user ? user.id : null; 
     const [focused, setFocus] = useState(false);
@@ -86,12 +92,11 @@ const SideBar = () => {
         setResultsLimit((prevLimit) => prevLimit + 5); 
     };
 
-
-    useEffect(()=>{
-        if (!focused){
+    useEffect(() => {
+        if (!focused) {
             setResultsLimit(5);
         }
-    },[focused])
+    }, [focused]);
 
     return (
         <div
@@ -109,7 +114,7 @@ const SideBar = () => {
                 <div className="w-[80%] h-1/2 bg-gray-200 flex justify-start items-center rounded-3xl text-black transition-all duration-300 ease-in-out">
                     <input
                         type="text"
-                        className="bg-transparent w-[80%] p-4 outline-none transition-all "
+                        className="bg-transparent w-[80%] p-4 outline-none transition-all"
                         onFocus={handleFocus} 
                         onBlur={handleBlur} 
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -123,9 +128,13 @@ const SideBar = () => {
                 <div className="w-full h-[90%] bg-transparent flex flex-col items-center justify-start">
                     {searchResults.length > 0 ? (
                         <>
-                            <ul className="w-full bg-transparent border-r-2 border-t-2 border-l-2 ">
+                            <ul className="w-full bg-transparent border-r-2 border-t-2 border-l-2">
                                 {searchResults.map((user) => (
-                                    <li key={user.id} className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2">
+                                    <li 
+                                        key={user.id} 
+                                        className="p-2 hover:bg-gray-300 cursor-pointer text-black flex justify-start items-end mt-2 break-words"
+                                        onClick={() => setSelectedUser(user)} 
+                                    >
                                         {user.name} {user.surname}
                                     </li>
                                 ))}
@@ -133,8 +142,7 @@ const SideBar = () => {
                             {totalMatchingUsers > resultsLimit && ( 
                                 <button 
                                     ref={showMoreButtonRef}
-                                    className="bg-gray-200 hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl
-                                    text-black flex justify-center items-center"
+                                    className="bg-gray-200 hover:bg-gray-300 transition-all duration-500 w-[80%] h-[5%] rounded-br-xl rounded-bl-xl text-black flex justify-center items-center"
                                     onClick={handleShowMore}
                                 >
                                     Show more
