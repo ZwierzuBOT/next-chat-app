@@ -93,43 +93,38 @@ const SideBar = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }:
         setResultsLimit((prevLimit) => prevLimit + 5);
     };
 
-    const handleUserSelect = (user: User) => {
-        setChatHistory((prevChatHistory) => {
-            const updatedHistory = prevChatHistory.filter((item) => item.id !== user.id);
-            updatedHistory.unshift(user);
-            return updatedHistory;
-        });
-
+    const handleUserSelect = async (user: User) => {
         setSelectedUser(user);
         setFocus(false);
         setSearchTerm("");
         setTypingToUser(user);
-
-        // Add to Firebase chat history
-        addToChatHistory(user);
-    };
-
-    const addToChatHistory = async (user: User) => {
+        
         if (!currentUserId) return;
-
+    
         const userDocRef = doc(firestore, 'chatHistory', currentUserId);
+    
         const userDoc = await getDoc(userDocRef);
-
-        const updatedHistory = chatHistory.filter((item) => item.id !== user.id);
-        updatedHistory.unshift(user);
-
+    
+        let updatedChatHistory: User[] = [];
+    
         if (userDoc.exists()) {
-            await updateDoc(userDocRef, {
-                history: updatedHistory
-            });
+            updatedChatHistory = userDoc.data()?.history || [];
         } else {
-            await setDoc(userDocRef, {
-                history: updatedHistory
-            });
+            updatedChatHistory = [];
         }
-
-        setChatHistory(updatedHistory);
+    
+        if (!updatedChatHistory.some(existingUser => existingUser.id === user.id)) {
+            updatedChatHistory.unshift(user);
+    
+ 
+            await setDoc(userDocRef, {
+                history: updatedChatHistory
+            }, { merge: true });
+    
+            setChatHistory(updatedChatHistory);
+        }
     };
+    
 
     useEffect(() => {
         if (!currentUserId) return;
@@ -146,17 +141,20 @@ const SideBar = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }:
         fetchChatHistory();
     }, [currentUserId]);
 
-    const handleSendMessage = async (message: string, user: User) => {
-        if (message.trim()) {
-            await addToChatHistory(user);
-        }
-    };
-
     useEffect(() => {
         if (!focused) {
             setResultsLimit(5);
         }
     }, [focused]);
+
+    useEffect(() => {
+        if (userTypedTo) {
+            const updatedChatHistory = chatHistory.filter((user) => user.id !== userTypedTo.id);
+            updatedChatHistory.unshift(userTypedTo); 
+            setChatHistory(updatedChatHistory); 
+            console.log(userTypedTo)
+        }
+    }, [userTypedTo]);
 
     return (
         <div

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { firestore } from "../../firebaseConfig";
 import { collection, query, where, orderBy, getDocs, addDoc, Timestamp } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 
 type SelectedUser = {
   id: string;
@@ -64,6 +65,7 @@ const Chat = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }: Ch
 
       setMessages([...messages, { senderId: currentUserId, message: newMessage, timestamp: Timestamp.now() }]);
       setNewMessage("");
+      setUserTypedTo(selectedUser)
     }
   };
 
