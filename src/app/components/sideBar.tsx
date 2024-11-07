@@ -92,6 +92,12 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
     };
 
     const handleUserSelect = (user: User) => {
+        setChatHistory((prevChatHistory) => {
+            const updatedHistory = prevChatHistory.filter((item) => item.id !== user.id);
+            updatedHistory.unshift(user);
+            return updatedHistory;
+        });
+
         setSelectedUser(user);
         setFocus(false);
         setSearchTerm("");
@@ -108,21 +114,14 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
     }, [searchTerm]);
 
     const addToChatHistory = async (user: User) => {
-        if (!currentUserId) {
-            console.log('No current user ID available');
-            return;
-        }
+        if (!currentUserId) return;
 
         const userDocRef = doc(firestore, 'chatHistory', currentUserId);
         const userDoc = await getDoc(userDocRef);
 
-        // Remove any existing record of this user
         const updatedHistory = chatHistory.filter((item) => item.id !== user.id);
-
-        // If the user is the one we are typing to, move them to the top of the list
         updatedHistory.unshift(user); 
 
-        // Update the Firestore chat history
         if (userDoc.exists()) {
             await updateDoc(userDocRef, {
                 history: updatedHistory
@@ -133,15 +132,11 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
             });
         }
 
-        // Update local state for chat history
         setChatHistory(updatedHistory);
     };
 
     useEffect(() => {
-        if (!currentUserId) {
-            console.log('No current user ID available');
-            return;
-        }
+        if (!currentUserId) return;
 
         const fetchChatHistory = async () => {
             const userDocRef = doc(firestore, 'chatHistory', currentUserId);
@@ -157,9 +152,6 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
 
     const handleSendMessage = async (message: string, user: User) => {
         if (message.trim()) {
-            // Logic to send the message goes here
-            console.log(`Message sent to ${user.name} ${user.surname}: ${message}`);
-            // Now, update the chat history to move the user to the top after sending the message
             await addToChatHistory(user);
         }
     };

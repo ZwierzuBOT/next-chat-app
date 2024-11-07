@@ -34,20 +34,22 @@ export default function RootLayout({
         <div className="w-screen h-screen flex justify-start items-center">
           {children}
           <div className="absolute top-1 right-1 w-[10%] h-[10%] flex justify-center items-center">
-          <UserButton
-                appearance={{
-                            elements: {
-                                userButtonAvatarBox: {
-                                    width: '100%', 
-                                    height: '100%',
-                                    minWidth: '1.5rem',
-                                    minHeight: '1.5rem',
-                                    maxWidth: '4rem',
-                                    maxHeight: '4rem' 
-                            },
+            <SignedIn>
+              <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: {
+                        width: '100%', 
+                        height: '100%',
+                        minWidth: '1.5rem',
+                        minHeight: '1.5rem',
+                        maxWidth: '4rem',
+                        maxHeight: '4rem' 
                         },
+                      },
                     }}
-                />
+                  />
+            </SignedIn>
           </div>
         </div>
       </body>
