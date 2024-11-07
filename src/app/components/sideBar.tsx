@@ -102,16 +102,10 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
         setFocus(false);
         setSearchTerm("");
         setTypingToUser(user);
-    };
 
-    useEffect(() => {
-        if (searchTerm && searchResults.length > 0) {
-            const typedUser = searchResults.find(user => matchesSearchTerm(user, searchTerm));
-            if (typedUser) {
-                addToChatHistory(typedUser); 
-            }
-        }
-    }, [searchTerm]);
+        // Add to Firebase chat history
+        addToChatHistory(user);
+    };
 
     const addToChatHistory = async (user: User) => {
         if (!currentUserId) return;
@@ -120,7 +114,7 @@ const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
         const userDoc = await getDoc(userDocRef);
 
         const updatedHistory = chatHistory.filter((item) => item.id !== user.id);
-        updatedHistory.unshift(user); 
+        updatedHistory.unshift(user);
 
         if (userDoc.exists()) {
             await updateDoc(userDocRef, {
