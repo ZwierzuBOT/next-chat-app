@@ -15,9 +15,11 @@ type User = {
 type SideBarProps = {
     selectedUser: User | null;
     setSelectedUser: (user: User | null) => void;
+    userTypedTo: User | null;
+    setUserTypedTo: (user: User | null) => void;
 };
 
-const SideBar = ({ selectedUser, setSelectedUser }: SideBarProps) => {
+const SideBar = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }: SideBarProps) => {
     const { user } = useUser();
     const currentUserId = user ? user.id : null;
     const [focused, setFocus] = useState(false);

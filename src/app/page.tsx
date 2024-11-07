@@ -12,16 +12,17 @@ type SelectedUser = {
 
 export default function Home() {
   const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
+  const [userTypedTo, setUserTypedTo] = useState<SelectedUser | null>(null);
 
   return (
     <div className="w-screen h-screen flex">
       <UserSync />
 
-      <SideBar selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
+      <SideBar selectedUser={selectedUser} setSelectedUser={setSelectedUser} userTypedTo={userTypedTo} setUserTypedTo={setUserTypedTo} />
 
       <div className="w-3/4 h-screen">
         {selectedUser ? (
-          <Chat selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
+          <Chat selectedUser={selectedUser} setSelectedUser={setSelectedUser} userTypedTo={userTypedTo} setUserTypedTo={setUserTypedTo} />
         ) : (
           <div className="flex items-center justify-center h-full w-3/4 text-gray-500">
             <p>Select a user to start chatting</p>
