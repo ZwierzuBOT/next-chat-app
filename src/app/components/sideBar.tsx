@@ -32,6 +32,7 @@ const SideBar = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }:
     const sidebarRef = useRef<HTMLDivElement>(null);
     const showMoreButtonRef = useRef<HTMLButtonElement>(null);
 
+    
     useEffect(() => {
         const fetchUsers = async () => {
             const usersRef = collection(firestore, 'users');
