@@ -18,6 +18,7 @@ type ChatProps = {
 };
 
 
+
 const Chat = ({ selectedUser, setSelectedUser, userTypedTo, setUserTypedTo }: ChatProps) => {
   const { user } = useUser();
   const currentUserId = user ? user.id : null;
